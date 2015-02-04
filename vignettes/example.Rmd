@@ -1,0 +1,92 @@
+---
+title: "Example analysis of a Stack Overflow user"
+author: "David Robinson"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Example analysis of a Stack Overflow user}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r, echo = FALSE}
+library(knitr)
+opts_chunk$set(message = FALSE, warning = FALSE)
+```
+
+Here I'll show an example of using the `stackr` package to analyze an individual user. While Stack Overflow provides many summaries and analyses of each user already, the `stackr` package lets us bring the data seamlessly into R. The package provides the tools to perform similar analyses of a given tag, of recently asked questions, or to answer other similar questions.
+
+Let's start by picking a Stack Overflow user at random. Eeny, meeny, miny... [me](http://stackoverflow.com/users/712603/david-robinson). (OK, that might not have been random). We can start by getting the information on the profile page like this (712603 is my ID, which can be seen in the URL of the aforementioned link):
+
+```{r}
+library(stackr)
+u <- stack_users(712603)
+u
+```
+
+But that's not too exciting, since it just shows the profile information. Instead, let's extract all of my answers. (Note that this requires making use of pagination since there are more than 100 answers). We'll also turn the result into a `tbl_df` so that it prints more reasonably:
+
+```{r}
+library(dplyr)
+answers <- stack_users(712603, "answers", num_pages = 10, pagesize = 100)
+answers <- tbl_df(answers)
+answers
+```
+
+This lets me find out a lot about myself: for starters, that I've answered `r nrow(answers)` questions. What percentage of my answers were accepted by the asker?
+
+```{r}
+mean(answers$is_accepted)
+```
+
+And what is the distribution of scores my answers have received?
+
+```{r}
+library(ggplot2)
+ggplot(answers, aes(score)) + geom_histogram(binwidth = 1)
+```
+
+How has my answering activity changed over time? To find this out, I can count the number of answers per month and graph it:
+
+```{r}
+library(lubridate)
+
+answers %>% mutate(month = round_date(creation_date, "month")) %>%
+    count(month) %>%
+    ggplot(aes(month, n)) + geom_line()
+```
+
+Well, it looks like it's been decreasing. How about how my answering activity changes over the course of a day?
+
+```{r}
+answers %>% mutate(hour = hour(creation_date)) %>%
+    count(hour) %>%
+    ggplot(aes(hour, n)) + geom_line()
+```
+
+(Note that the times are in my own time zone, EST). Unsurprisingly, I answer more during the day than at night, but I've still done some answering even around 4-6 AM. You can also spot two conspicuous dips: one at 12 when I eat lunch, and one at 6 when I take the train home from work.
+
+(If that's not enough invasion of my privacy, you could look at my commenting activity with `stack_users(712603, "comments", ...`, but it generally shows the same trends).
+
+### Top tags
+
+The API also makes it easy to extract the tags I've most answered, which is another handy way to extract and visualize information about my answering activity:
+
+```{r}
+top_tags <- stack_users(712603, "top-answer-tags", pagesize = 100)
+head(top_tags)
+
+top_tags %>% mutate(tag_name = reorder(tag_name, -answer_score)) %>%
+    head(20) %>%
+    ggplot(aes(tag_name, answer_score)) + geom_bar(stat = "identity") +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+We could also view it using the [wordcloud](http://cran.r-project.org/web/packages/wordcloud/wordcloud.pdf) package:
+
+```{r}
+library(wordcloud)
+wordcloud(top_tags$tag_name, top_tags$answer_count)
+```
+
+This is just scratching the surface of the information that the API can download, analyze, and visualize.
