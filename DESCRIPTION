@@ -9,6 +9,7 @@ Imports:
     dplyr (>= 0.4.1),
     jsonlite
 Suggests:
+    knitr,
     lubridate,
     wordcloud,
     ggplot2
@@ -18,4 +19,3 @@ Authors: David Robinson <admiral.david@gmail.com> [aut, cre]
 URL: http://github.com/dgrtwo/stackr
 VignetteBuilder: knitr
 BugReports: http://github.com/dgrtwo/stackr/issues
-Suggests: knitr
