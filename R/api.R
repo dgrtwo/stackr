@@ -7,14 +7,14 @@
 #'
 #' @param req a request from httr::GET
 #'
-#' @import httr
-#' @import jsonlite
+#' @importFrom httr content
+#' @importFrom jsonlite fromJSON
 stack_parse <- function(req) {
-    text <- httr::content(req, as = "text")
+    text <- content(req, as = "text")
 
     if (identical(text, "")) stop("No output to parse", call. = FALSE)
 
-    j <- jsonlite::fromJSON(text)
+    j <- fromJSON(text)
     if (!is.null(j$error_id)) {
         stop(paste0("Error ", j$error_id, ": ", j$error_message))
     }
@@ -57,7 +57,7 @@ stack_parse <- function(req) {
 #' @param num_pages number of consecutive pages to query; by default 1
 #' @param ... additional parameters to the method
 #'
-#' @import httr
+#' @importFrom httr GET
 #' @import dplyr
 stack_GET <- function(path, site = "stackoverflow", page = 1, num_pages = 1, ...) {
     # auth <- github_auth(pat)
@@ -72,7 +72,7 @@ stack_GET <- function(path, site = "stackoverflow", page = 1, num_pages = 1, ...
     tbls <- NULL
     tbl <- NULL
     while (num_pages > 0) {
-        req <- httr::GET(base_path, path = path, query = query)
+        req <- GET(base_path, path = path, query = query)
 
         tbl <- stack_parse(req)
         tbls <- c(tbls, list(tbl))
