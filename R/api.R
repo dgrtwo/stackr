@@ -31,7 +31,7 @@ stack_parse <- function(req) {
     # "shallow user" ends up being a data.frame. Turn it into separate
     # columns
     if (any(sapply(items, is.data.frame))) {
-        items <- do.call(cbind, items)
+        items <- jsonlite::flatten(items)
     }
     # replace dots, as in owner.user_id, with _
     colnames(items) <- gsub("\\.", "_", colnames(items))
