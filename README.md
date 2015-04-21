@@ -5,16 +5,22 @@ This R package serves as an unofficial wrapper for the read-only features of the
 
 The [documentation](https://api.stackexchange.com/docs/) of the Stack Exchange API is worth reviewing, as the package is built to resemble that interface while remaining true to R's style and syntax.
 
+## Installation
+
 You can install the package with [devtools](https://github.com/hadley/devtools) as such: 
 
 ```{r}
 # install.packages("devtools")
 devtools::install_github("dgrtwo/stackr")
+
+# if you want to access the vignettes from within the package:
+devtools::install_github("dgrtwo/stackr", build_vignettes = TRUE)
+browseVignettes("stackr")
 ```
 
 ## Basics
 
-Methods for querying objects are implemented in functions of the form `stack_[object]`. Each of these functions returns a data frame, with one row per object.
+Methods for querying objects from the APIare implemented in functions of the form `stack_[object]`. Each of these functions returns a data frame, with one row per object.
 
 For example, one could query recent questions with:
 

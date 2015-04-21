@@ -7,8 +7,6 @@
 #'
 #' @param req a request from httr::GET
 #'
-#' @import httr
-#' @import jsonlite
 stack_parse <- function(req) {
     text <- httr::content(req, as = "text")
 
@@ -56,9 +54,6 @@ stack_parse <- function(req) {
 #' @param page which page to start from
 #' @param num_pages number of consecutive pages to query; by default 1
 #' @param ... additional parameters to the method
-#'
-#' @import httr
-#' @import dplyr
 stack_GET <- function(path, site = "stackoverflow", page = 1, num_pages = 1, ...) {
     # auth <- github_auth(pat)
     base_path <- "https://api.stackexchange.com/2.2/"
