@@ -23,7 +23,7 @@ stack_users <- function(id = NULL, special = NULL, ...) {
 
     special_no_ids <- c("moderators")
 
-    if (special %in% special_id && length(id) > 1) {
+    if ((!is.null(special) && (special %in% special_id)) && length(id) > 1) {
         stop(paste(special, "can be used only with a single ID"))
     }
 
