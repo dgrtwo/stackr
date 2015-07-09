@@ -43,6 +43,11 @@ stack_parse <- function(req) {
     # add metadata as an attribute
     attr(items, "metadata") <- j[-1]
 
+    if (!is.null(j[-1]$backoff)) {
+        message("Response has backoff parameter: must wait ",
+                j[-1]$backoff, " seconds before performing same method")
+    }
+
     items
 }
 
@@ -72,7 +77,13 @@ stack_GET <- function(path, site = "stackoverflow", page = 1, num_pages = 1, ...
         tbl <- stack_parse(req)
         tbls <- c(tbls, list(tbl))
 
-        if (!attr(tbl, "metadata")$has_more) {
+        metadata <- attr(tbl, "metadata")
+
+        if (!is.null(metadata$backoff)) {
+            Sys.sleep(metadata$backoff)
+        }
+
+        if (!metadata$has_more) {
             # finished pagination, can quit
             break
         }
